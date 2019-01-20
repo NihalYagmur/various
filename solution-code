@@ -1,0 +1,63 @@
+package com.example.nihal.newapp;
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.io.FileOutputStream;
+import android.content.Context;
+/**
+ * Created by nihal on 7/29/15.
+ */
+public class SpeechRec {
+    private Context context;
+
+        public static void main(String[] args) throws Exception {
+           SpeechRec http = new SpeechRec();
+            http.sendPost();
+        }
+        private void sendPost() throws Exception {
+            String USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64; rv:38.0) Gecko/20100101 Firefox/38.0",
+                    url = "https://www.google.com/speech-api/v2/recognize?output=json&lang=en-us&key=AIzaSyBOti4mM-6x9WDnZIjIeyEU21OpBXqWBgw";
+
+            URL obj = new URL(url);
+            HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+
+            // add reuqest header
+            con.setRequestMethod("POST");
+            con.setRequestProperty("User-Agent", USER_AGENT);
+            con.setRequestProperty("Content-Type", "audio/l16; rate=44100");
+            con.setRequestProperty("AcceptEncoding", "gzip,deflate,sdch");
+
+            // Send post request
+            con.setDoOutput(true);
+
+            DataOutputStream wr = new DataOutputStream(con.getOutputStream());
+            wr.write(Files.readAllBytes(Paths.get("test.wav")));
+            wr.flush();
+            wr.close();
+
+            int responseCode = con.getResponseCode();
+            System.out.println("\nSending 'POST' request to URL : " + url);
+            System.out.println("Response Code : " + responseCode);
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(
+                    con.getInputStream()));
+            String inputLine;
+            StringBuffer response = new StringBuffer();
+
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            in.close();
+
+            // print result
+            System.out.println(response.toString());
+
+        }
+
+
+}
+
